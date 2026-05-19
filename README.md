@@ -33,3 +33,34 @@ https://github.com/connectwilson/agentrouter-skill
 
 安装后，如果当前客户端支持 MCP，请优先帮我连接 AgentRouter MCP；如果是 Claude Desktop，请优先使用仓库里的 agentrouter.mcpb 扩展包。
 ```
+
+## Universal MCP via npm/npx
+
+For Cursor, Windsurf, Cline, Continue, VS Code, and other MCP-capable clients, use the npm package path after publication:
+
+```json
+{
+  "mcpServers": {
+    "AgentRouter": {
+      "command": "npx",
+      "args": ["-y", "@agentrouter/mcp"],
+      "env": {
+        "AGENT_ROUTER_URL": "https://agentrouter-markets-production.up.railway.app",
+        "AGENT_ROUTER_MAX_PRICE": "0.05"
+      }
+    }
+  }
+}
+```
+
+Package source is included in:
+
+```text
+packages/agentrouter-mcp
+```
+
+Before npm publication, local development clients can point directly to:
+
+```text
+packages/agentrouter-mcp/bin/agentrouter-mcp.js
+```
