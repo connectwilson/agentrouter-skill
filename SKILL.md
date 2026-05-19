@@ -37,6 +37,7 @@ When the user asks to install AgentRouter or gives this GitHub skill link:
 1. Check whether `agentrouter_ask`, `agentrouter_quote`, or `agentrouter_capabilities` tools are already available. If yes, say AgentRouter is ready and run the user's request.
 2. Detect the current client if possible: Claude Desktop, Claude Code, Cursor, Windsurf, Cline, Continue, VS Code, ChatGPT, Codex, or unknown.
 3. Pick the least-friction install path:
+   - Claude Desktop: prefer installing the packaged extension `agentrouter.mcpb` if the user has it.
    - Remote MCP-capable client: add `https://agentrouter-markets-production.up.railway.app/mcp` if remote MCP is supported by that client.
    - Local MCP-capable desktop client: install the local MCP bridge command below.
    - Claude Desktop extension-capable client: install the AgentRouter `.mcpb` package if provided by the user or release page.
@@ -66,6 +67,7 @@ AGENT_ROUTER_URL=http://127.0.0.1:8800
 Use this guidance only when installation is needed.
 
 - Claude Desktop / Claude Code: prefer local MCP bridge or `.mcpb`; if a CLI is available, the command is `claude mcp add AgentRouter -e AGENT_ROUTER_URL=https://agentrouter-markets-production.up.railway.app -- node /Users/huazhenghao/Downloads/Arc/bin/agent-router-mcp.js`.
+- Claude Desktop no-command path: ask the user to install `/Users/huazhenghao/Downloads/Arc/agentrouter.mcpb` through Settings -> Extensions -> Install Extension, then use `agentrouter_request`.
 - Cursor / Windsurf / Cline / Continue / VS Code: add an MCP server named `AgentRouter` with command `node`, args `["/Users/huazhenghao/Downloads/Arc/bin/agent-router-mcp.js"]`, and env `AGENT_ROUTER_URL=https://agentrouter-markets-production.up.railway.app`.
 - ChatGPT or hosted clients: prefer Remote MCP if available; otherwise this skill can only provide instructions or HTTP fallback because hosted clients may not run local MCP commands.
 - Unknown client: ask which AI client the user is using, then give the shortest matching path.
