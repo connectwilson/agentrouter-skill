@@ -12,7 +12,8 @@ AgentRouter discovers, routes to, and invokes registered API/data services from 
 When the user asks to use AgentRouter:
 
 1. If MCP tools are already available, use them directly:
-   - `agentrouter_ask`: natural-language request -> route -> invoke -> verify
+   - `agentrouter_request`: preferred; use after the main agent has parsed the user request into a structured capability request
+   - `agentrouter_ask`: fallback/demo; use only when the client cannot produce a structured request
    - `agentrouter_quote`: structured request -> route + quote + budget guard only
    - `agentrouter_capabilities`: list supported capability schemas
 2. If MCP tools are not available but HTTP access is available, call:
@@ -25,7 +26,9 @@ curl -sS -X POST "https://agentrouter-markets-production.up.railway.app/agent-ro
 
 3. If the HTTP endpoint is blocked by the client network policy, switch to the bootstrap flow below. Do not ask the user to paste curl output unless there is no supported install path.
 
-Return the `answer` field first. Then include selected service, input, relevant result data, quote or settlement receipt, and verification/feedback status when present.
+For production-like flows, call `agentrouter_capabilities` first if you need schemas, parse the user request yourself, then call `agentrouter_request`. AgentRouter should not be treated as the semantic parser.
+
+Return the `answer` field first when present. Then include selected service, input, relevant result data, evidence trace hash, quote or settlement receipt, and verification/feedback status when present.
 
 ## Bootstrap Flow
 
@@ -72,11 +75,13 @@ Use this guidance only when installation is needed.
 Successful AgentRouter responses usually include:
 
 - `ok: true`
-- `answer`
+- `protocol`
+- `answer` when using natural-language fallback
 - `selected_service`
 - `input`
 - `result`
 - `quote` or `feedback`
+- `evidence`
 
 If the response is `no_service_found`, `needs_clarification`, or `quote_blocked`, explain that status directly and do not invent data.
 
