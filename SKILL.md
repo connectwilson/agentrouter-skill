@@ -19,7 +19,7 @@ When the user asks to use AgentRouter:
 2. If MCP tools are not available but HTTP access is available, call:
 
 ```bash
-curl -sS -X POST "https://agentrouter-markets-production.up.railway.app/agent-router/ask" \
+curl -sS -X POST "https://agentrouter-markets.onrender.com/agent-router/ask" \
   -H "content-type: application/json" \
   -d '{"task":"<user original request>","max_price":"0.05"}'
 ```
@@ -27,6 +27,8 @@ curl -sS -X POST "https://agentrouter-markets-production.up.railway.app/agent-ro
 3. If the HTTP endpoint is blocked by the client network policy, switch to the bootstrap flow below. Do not ask the user to paste curl output unless there is no supported install path.
 
 For production-like flows, call `agentrouter_capabilities` first if you need schemas, parse the user request yourself, then call `agentrouter_request`. AgentRouter should not be treated as the semantic parser.
+
+For API-specific terms that are not in the fixed catalog, use AgentRouter's dynamic capability path. For example, a request like "BTC ETF data" should be sent as capability `btc_etf` with params such as `{}`; do not coerce it into unrelated capabilities like `netflow` unless the user explicitly asks for netflow.
 
 Return the `answer` field first when present. Then include selected service, input, relevant result data, evidence trace hash, quote or settlement receipt, and verification/feedback status when present.
 
@@ -39,7 +41,7 @@ When the user asks to install AgentRouter or gives this GitHub skill link:
 3. Pick the least-friction install path:
    - Claude Desktop: prefer installing the packaged extension `agentrouter.mcpb` if the user has it.
    - npm/npx-capable MCP client: use `npx -y @agentrouter/mcp` once the package is published.
-   - Remote MCP-capable client: add `https://agentrouter-markets-production.up.railway.app/mcp` if remote MCP is supported by that client.
+   - Remote MCP-capable client: add `https://agentrouter-markets.onrender.com/mcp` if remote MCP is supported by that client.
    - Local MCP-capable desktop client: install the local MCP bridge command below.
    - Claude Desktop extension-capable client: install the AgentRouter `.mcpb` package if provided by the user or release page.
    - Skill-only client: keep this skill installed and use HTTP fallback if network access permits.
@@ -54,7 +56,7 @@ node /Users/huazhenghao/Downloads/Arc/bin/agent-router-mcp.js
 Recommended local MCP environment:
 
 ```text
-AGENT_ROUTER_URL=https://agentrouter-markets-production.up.railway.app
+AGENT_ROUTER_URL=https://agentrouter-markets.onrender.com
 ```
 
 If the user runs a local AgentRouter server, use:
@@ -67,10 +69,10 @@ AGENT_ROUTER_URL=http://127.0.0.1:8800
 
 Use this guidance only when installation is needed.
 
-- Claude Desktop / Claude Code: prefer local MCP bridge or `.mcpb`; if a CLI is available, the command is `claude mcp add AgentRouter -e AGENT_ROUTER_URL=https://agentrouter-markets-production.up.railway.app -- node /Users/huazhenghao/Downloads/Arc/bin/agent-router-mcp.js`.
+- Claude Desktop / Claude Code: prefer local MCP bridge or `.mcpb`; if a CLI is available, the command is `claude mcp add AgentRouter -e AGENT_ROUTER_URL=https://agentrouter-markets.onrender.com -- node /Users/huazhenghao/Downloads/Arc/bin/agent-router-mcp.js`.
 - Claude Desktop no-command path: ask the user to install `/Users/huazhenghao/Downloads/Arc/agentrouter.mcpb` through Settings -> Extensions -> Install Extension, then use `agentrouter_request`.
-- Cursor / Windsurf / Cline / Continue / VS Code: add an MCP server named `AgentRouter` with command `node`, args `["/Users/huazhenghao/Downloads/Arc/bin/agent-router-mcp.js"]`, and env `AGENT_ROUTER_URL=https://agentrouter-markets-production.up.railway.app`.
-- Cross-client npm path after package publication: add an MCP server named `AgentRouter` with command `npx`, args `["-y", "@agentrouter/mcp"]`, and env `AGENT_ROUTER_URL=https://agentrouter-markets-production.up.railway.app`.
+- Cursor / Windsurf / Cline / Continue / VS Code: add an MCP server named `AgentRouter` with command `node`, args `["/Users/huazhenghao/Downloads/Arc/bin/agent-router-mcp.js"]`, and env `AGENT_ROUTER_URL=https://agentrouter-markets.onrender.com`.
+- Cross-client npm path after package publication: add an MCP server named `AgentRouter` with command `npx`, args `["-y", "@agentrouter/mcp"]`, and env `AGENT_ROUTER_URL=https://agentrouter-markets.onrender.com`.
 - ChatGPT or hosted clients: prefer Remote MCP if available; otherwise this skill can only provide instructions or HTTP fallback because hosted clients may not run local MCP commands.
 - Unknown client: ask which AI client the user is using, then give the shortest matching path.
 

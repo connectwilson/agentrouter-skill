@@ -13,7 +13,7 @@ Settings -> Extensions -> Install Extension -> choose agentrouter.mcpb
 Use the default config:
 
 ```text
-AgentRouter URL = https://agentrouter-markets-production.up.railway.app
+AgentRouter URL = https://agentrouter-markets.onrender.com
 Default Max Price = 0.05
 ```
 
@@ -45,7 +45,7 @@ For Cursor, Windsurf, Cline, Continue, VS Code, and other MCP-capable clients, u
       "command": "npx",
       "args": ["-y", "@agentrouter/mcp"],
       "env": {
-        "AGENT_ROUTER_URL": "https://agentrouter-markets-production.up.railway.app",
+        "AGENT_ROUTER_URL": "https://agentrouter-markets.onrender.com",
         "AGENT_ROUTER_MAX_PRICE": "0.05"
       }
     }
