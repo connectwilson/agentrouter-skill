@@ -12,10 +12,14 @@ AgentRouter discovers, routes to, and invokes registered API/data services from 
 When the user asks to use AgentRouter:
 
 1. If MCP tools are already available, use them directly:
-   - `agentrouter_request`: preferred; use after the main agent has parsed the user request into a structured capability request
-   - `agentrouter_ask`: fallback/demo; use only when the client cannot produce a structured request
+   - `agentrouter_request`: default path; use after you parse the user request into a structured capability request
+   - `agentrouter_capabilities`: call this first when you are unsure which structured capability or params to use
    - `agentrouter_quote`: structured request -> route + quote + budget guard only
-   - `agentrouter_capabilities`: list supported capability schemas
+   - `agentrouter_ask`: last-resort fallback/demo; use only when you cannot produce a structured request from the user request and capability catalog
+   - `agentrouter_wallet_status`: check local encrypted EVM wallet readiness and, in Arc mode, Arc Testnet USDC balance
+   - `agentrouter_wallet_create`: manual fallback wallet bootstrap; normally not needed because the local MCP bridge auto-creates a session wallet during initialization
+   - `agentrouter_wallet_setup`: advanced wallet bootstrap; opens a one-time local setup page for a user-chosen encryption passphrase
+   - `agentrouter_wallet_init`: advanced only; create a local encrypted EVM wallet when a local passphrase is already available in the MCP environment
 2. If MCP tools are not available but HTTP access is available, call:
 
 ```bash
@@ -26,7 +30,22 @@ curl -sS -X POST "https://agentrouter-markets.onrender.com/agent-router/ask" \
 
 3. If the HTTP endpoint is blocked by the client network policy, switch to the bootstrap flow below. Do not ask the user to paste curl output unless there is no supported install path.
 
-For production-like flows, call `agentrouter_capabilities` first if you need schemas, parse the user request yourself, then call `agentrouter_request`. AgentRouter should not be treated as the semantic parser.
+For production-like flows, call `agentrouter_capabilities` first if you need schemas, parse the user request yourself, then call `agentrouter_request`. AgentRouter should not be treated as the semantic parser. Do not call `agentrouter_ask` just because the user phrased the request naturally; natural language is expected, and the main agent should map it into a capability request when the catalog covers it.
+
+Common structured example:
+
+```json
+{
+  "capability": "token_smart_money_activity",
+  "params": {
+    "token_symbol": "AZTEC",
+    "chain": "ethereum",
+    "window": "24h",
+    "pagination": { "page": 1, "per_page": 24 }
+  },
+  "constraints": { "max_price_usdc": "0.05" }
+}
+```
 
 For requests outside the fixed capability catalog, search registered services or use `agentrouter_ask` rather than forcing the request into an unrelated fixed capability. Prefer exact service capabilities, tags, titles, and schema descriptions returned by discovery.
 
@@ -57,7 +76,17 @@ Recommended local MCP environment:
 
 ```text
 AGENT_ROUTER_URL=https://agentrouter-markets.onrender.com
+AGENT_ROUTER_MAX_PRICE=0.05
 ```
+
+For Arc hackathon demos with real local-wallet settlement, add:
+
+```text
+ADN_PAYMENT_BACKEND=circle_arc
+ADN_ARC_RPC_URL=https://rpc.testnet.arc.network
+```
+
+In this mode AgentRouter still uses the same x402-style HTTP 402 challenge, but the local wallet sends Arc Testnet USDC directly to the provider payout wallet and the provider verifies the transaction before returning data.
 
 If the user runs a local AgentRouter server, use:
 
@@ -65,11 +94,13 @@ If the user runs a local AgentRouter server, use:
 AGENT_ROUTER_URL=http://127.0.0.1:8800
 ```
 
+After MCP is installed, the local AgentRouter bridge automatically creates a local encrypted EVM/secp256k1 session wallet during MCP initialization if one does not already exist. Do not ask the user to trigger wallet creation, configure environment variables, or type a wallet passphrase into chat. If the user asks about wallet readiness, call `agentrouter_wallet_status` and show the public address. For `circle_arc` settlement, this address needs a small Arc Testnet USDC balance. If a paid request returns `wallet_needs_funding`, show the returned wallet address, network, required amount, and ask the user to fund it before retrying. Use `agentrouter_wallet_create` only as a manual fallback if auto-creation was disabled or failed. Use `agentrouter_wallet_setup` only if the user explicitly asks for an advanced self-chosen passphrase flow.
+
 ## Client Guidance
 
 Use this guidance only when installation is needed.
 
-- Claude Desktop / Claude Code: prefer local MCP bridge or `.mcpb`; if a CLI is available, the command is `claude mcp add AgentRouter -e AGENT_ROUTER_URL=https://agentrouter-markets.onrender.com -- node /Users/huazhenghao/Downloads/Arc/bin/agent-router-mcp.js`.
+- Claude Desktop / Claude Code: prefer local MCP bridge or `.mcpb`; if a CLI is available, the command is `claude mcp add AgentRouter -e AGENT_ROUTER_URL=https://agentrouter-markets.onrender.com -e AGENT_ROUTER_MAX_PRICE=0.05 -- node /Users/huazhenghao/Downloads/Arc/bin/agent-router-mcp.js`.
 - Claude Desktop no-command path: ask the user to install `/Users/huazhenghao/Downloads/Arc/agentrouter.mcpb` through Settings -> Extensions -> Install Extension, then use `agentrouter_request`.
 - Cursor / Windsurf / Cline / Continue / VS Code: add an MCP server named `AgentRouter` with command `node`, args `["/Users/huazhenghao/Downloads/Arc/bin/agent-router-mcp.js"]`, and env `AGENT_ROUTER_URL=https://agentrouter-markets.onrender.com`.
 - Cross-client npm path after package publication: add an MCP server named `AgentRouter` with command `npx`, args `["-y", "@agentrouter/mcp"]`, and env `AGENT_ROUTER_URL=https://agentrouter-markets.onrender.com`.
