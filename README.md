@@ -1,6 +1,6 @@
 # AgentRouter Skill
 
-AgentRouter is a generic bootstrap skill plus Claude Desktop extension for connecting AI clients to the Agent Native Data Network.
+AgentRouter is a generic bootstrap skill plus a universal MCP server for connecting AI clients to the Agent Native Data Network. A Claude Desktop extension is also available as an optional no-command install path.
 
 ## Claude Desktop No-Command Install
 
@@ -18,6 +18,20 @@ Default Max Price = 0.05
 ```
 
 Then ask Claude:
+
+```text
+用 AgentRouter 查 BTC 当前最大爆仓痛点是多少
+```
+
+## Claude Code Skill Install
+
+Paste this into Claude Code chat or run it in a terminal:
+
+```bash
+npx skills add connectwilson/agentrouter-skill --skill AgentRouter
+```
+
+After installation, ask Claude:
 
 ```text
 用 AgentRouter 查 BTC 当前最大爆仓痛点是多少
