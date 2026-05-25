@@ -28,7 +28,7 @@ Then ask Claude:
 Paste this into Claude Code chat or run it in a terminal:
 
 ```bash
-npx skills add connectwilson/agentrouter-skill --skill AgentRouter
+npx -y skills@latest add connectwilson/agentrouter-skill --skill AgentRouter --agent claude-code -g -y --copy
 ```
 
 After installation, ask Claude:
