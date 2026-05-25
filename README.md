@@ -20,7 +20,7 @@ Default Max Price = 0.05
 Then ask Claude:
 
 ```text
-用 AgentRouter 查 BTC 当前最大爆仓痛点是多少
+Use AgentRouter to find BTC liquidation max pain right now.
 ```
 
 ## Claude Code Skill Install
@@ -34,7 +34,7 @@ npx -y skills@latest add connectwilson/agentrouter-skill --skill AgentRouter --a
 After installation, ask Claude:
 
 ```text
-用 AgentRouter 查 BTC 当前最大爆仓痛点是多少
+Use AgentRouter to find BTC liquidation max pain right now.
 ```
 
 ## Skill Install Prompt
@@ -42,10 +42,10 @@ After installation, ask Claude:
 You can also ask an AI client to install the skill from this repo:
 
 ```text
-请从这个 GitHub 链接安装 AgentRouter Skill：
+Install the AgentRouter Skill from this GitHub repo:
 https://github.com/connectwilson/agentrouter-skill
 
-安装后，如果当前客户端支持 MCP，请优先帮我连接 AgentRouter MCP；如果是 Claude Desktop，请优先使用仓库里的 agentrouter.mcpb 扩展包。
+After installation, if the current client supports MCP, connect the AgentRouter MCP router. If this is Claude Desktop, prefer the bundled agentrouter.mcpb extension package.
 ```
 
 ## Universal MCP via npm/npx
