@@ -25,13 +25,19 @@ Find BTC liquidation max pain right now.
 
 ## Skill Install
 
-Paste this into a shell-capable agent or run it in a terminal:
+For paid data calls, paste this into a shell-capable agent or run it in a terminal:
 
 ```bash
-npx skills add connectwilson/agentrouter-skill --skill AgentRouter
+npx -y agentrouter
 ```
 
-After install, restart or reload the AI client. For the first paid data request, AgentRouter checks the quote/payment path first and shows wallet funding instructions if the local Arc wallet needs USDC. The agent should not bypass that prompt with web search or a provider-specific MCP tool.
+Before the npm package is published, run the same installer from GitHub:
+
+```bash
+npx -y github:connectwilson/agentrouter-markets#main
+```
+
+The installer adds the AgentRouter Skill, configures supported local MCP clients when their config directories are present, creates a local encrypted AgentRouter wallet, and prints the Arc Testnet USDC funding address. After install, restart or reload the AI client. For the first paid data request, AgentRouter checks the quote/payment path first and shows wallet funding instructions if the local Arc wallet needs USDC. The agent should not bypass that prompt with web search or a provider-specific MCP tool.
 
 After installation, ask your agent a normal data/API question:
 
@@ -39,31 +45,17 @@ After installation, ask your agent a normal data/API question:
 Find BTC liquidation max pain right now.
 ```
 
-If native MCP tools are not attached, the skill uses the hosted AgentRouter HTTP or CLI path:
+For quote-only Skill behavior, the standard Skills CLI still works:
 
 ```bash
-AGENT_ROUTER_URL=https://agentrouter.network AGENT_ROUTER_MAX_PRICE=0.05 npx -y --package github:connectwilson/agentrouter-markets#main agent-router ask "BTC liquidation max pain"
+npx skills add connectwilson/agentrouter-skill --skill AgentRouter
 ```
 
-If your environment needs explicit non-interactive flags:
-
-```bash
-npx -y skills@latest add connectwilson/agentrouter-skill --skill AgentRouter -g -y --copy
-```
-
-Manual fallback if the Skills CLI is unavailable:
-
-```bash
-mkdir -p "$HOME/.agents/skills/agentrouter" "$HOME/.claude/skills/agentrouter" "$HOME/.codex/skills/agentrouter" && curl -fsSL https://agentrouter.network/skills/AgentRouter/SKILL.md -o "$HOME/.agents/skills/agentrouter/SKILL.md" && cp "$HOME/.agents/skills/agentrouter/SKILL.md" "$HOME/.claude/skills/agentrouter/SKILL.md" && cp "$HOME/.agents/skills/agentrouter/SKILL.md" "$HOME/.codex/skills/agentrouter/SKILL.md"
-```
-
-For local terminals where you are comfortable auditing and running the installer script, this advanced local installer is also available:
+Manual fallback if npm/npx is unavailable:
 
 ```bash
 curl -fsSL https://agentrouter.network/install.sh | bash
 ```
-
-The installer is the paid-call path: it installs the skill, configures supported local MCP clients such as Claude Desktop and Cursor when their config directories are present, enables `circle_arc` settlement, creates a local encrypted AgentRouter session wallet under `~/.agentrouter/adn`, and prints the Arc Testnet USDC funding address. The Skills CLI alone only installs the agent instructions; it cannot safely edit MCP config or create a local payment wallet inside hosted agent sandboxes.
 
 This works for shell-capable agents such as Claude Code, Codex, OpenClaw, Hermes, Cursor, and Windsurf.
 
