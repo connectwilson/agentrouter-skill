@@ -31,6 +31,8 @@ Paste this into a shell-capable agent or run it in a terminal:
 npx skills add connectwilson/agentrouter-skill --skill AgentRouter
 ```
 
+After install, restart or reload the AI client. For the first paid data request, AgentRouter checks the quote/payment path first and shows wallet funding instructions if the local Arc wallet needs USDC. The agent should not bypass that prompt with web search or a provider-specific MCP tool.
+
 After installation, ask your agent a normal data/API question:
 
 ```text
