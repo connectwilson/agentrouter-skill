@@ -37,6 +37,14 @@ After installation, ask Claude:
 Use AgentRouter to find BTC liquidation max pain right now.
 ```
 
+## Remote MCP Connector
+
+For Claude web, Claude Managed Agents, and any product that supports URL-based Remote MCP, add this connector URL:
+
+```text
+https://agentrouter-markets.onrender.com/mcp
+```
+
 ## Skill Install Prompt
 
 You can also ask an AI client to install the skill from this repo:
