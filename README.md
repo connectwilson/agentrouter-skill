@@ -23,7 +23,7 @@ Then ask Claude:
 Use AgentRouter to find BTC liquidation max pain right now.
 ```
 
-## Claude Code Skill Install
+## One-Line Skill Install
 
 Paste this into Claude Code chat or run it in a terminal:
 
@@ -31,11 +31,19 @@ Paste this into Claude Code chat or run it in a terminal:
 npx -y skills@latest add connectwilson/agentrouter-skill --skill AgentRouter --agent claude-code -g -y --copy
 ```
 
-After installation, ask Claude:
+After installation, ask your agent:
 
 ```text
 Use AgentRouter to find BTC liquidation max pain right now.
 ```
+
+If native MCP tools are not attached, the skill uses the hosted AgentRouter CLI fallback:
+
+```bash
+AGENT_ROUTER_URL=https://agentrouter-markets.onrender.com AGENT_ROUTER_MAX_PRICE=0.05 npx -y --package github:connectwilson/agentrouter-markets#main agent-router ask "BTC liquidation max pain"
+```
+
+This works for shell-capable agents such as Claude Code, Codex, OpenClaw, Hermes, Cursor, and Windsurf.
 
 ## Remote MCP Connector
 
