@@ -23,12 +23,12 @@ Then ask a normal data question:
 Find BTC liquidation max pain right now.
 ```
 
-## Safe Skill Install
+## Skill Install
 
-Paste this into a shell-capable agent or run it in a terminal. It downloads the AgentRouter Skill markdown only and does not execute a remote shell script:
+Paste this into a shell-capable agent or run it in a terminal:
 
 ```bash
-mkdir -p "$HOME/.agents/skills/agentrouter" "$HOME/.claude/skills/agentrouter" "$HOME/.codex/skills/agentrouter" && curl -fsSL https://agentrouter.network/skills/AgentRouter/SKILL.md -o "$HOME/.agents/skills/agentrouter/SKILL.md" && cp "$HOME/.agents/skills/agentrouter/SKILL.md" "$HOME/.claude/skills/agentrouter/SKILL.md" && cp "$HOME/.agents/skills/agentrouter/SKILL.md" "$HOME/.codex/skills/agentrouter/SKILL.md"
+npx skills add connectwilson/agentrouter-skill --skill AgentRouter
 ```
 
 After installation, ask your agent a normal data/API question:
@@ -43,19 +43,25 @@ If native MCP tools are not attached, the skill uses the hosted AgentRouter HTTP
 AGENT_ROUTER_URL=https://agentrouter.network AGENT_ROUTER_MAX_PRICE=0.05 npx -y --package github:connectwilson/agentrouter-markets#main agent-router ask "BTC liquidation max pain"
 ```
 
-For local terminals where you are comfortable auditing and running the installer script, this advanced installer is also available:
+If your environment needs explicit non-interactive flags:
+
+```bash
+npx -y skills@latest add connectwilson/agentrouter-skill --skill AgentRouter -g -y --copy
+```
+
+Manual fallback if the Skills CLI is unavailable:
+
+```bash
+mkdir -p "$HOME/.agents/skills/agentrouter" "$HOME/.claude/skills/agentrouter" "$HOME/.codex/skills/agentrouter" && curl -fsSL https://agentrouter.network/skills/AgentRouter/SKILL.md -o "$HOME/.agents/skills/agentrouter/SKILL.md" && cp "$HOME/.agents/skills/agentrouter/SKILL.md" "$HOME/.claude/skills/agentrouter/SKILL.md" && cp "$HOME/.agents/skills/agentrouter/SKILL.md" "$HOME/.codex/skills/agentrouter/SKILL.md"
+```
+
+For local terminals where you are comfortable auditing and running the installer script, this advanced local installer is also available:
 
 ```bash
 curl -fsSL https://agentrouter.network/install.sh | bash
 ```
 
 This works for shell-capable agents such as Claude Code, Codex, OpenClaw, Hermes, Cursor, and Windsurf.
-
-If your agent environment supports the `skills` CLI and GitHub cloning, this also works:
-
-```bash
-npx -y skills@latest add connectwilson/agentrouter-skill --skill AgentRouter -g -y --copy
-```
 
 ## Remote MCP Connector
 
