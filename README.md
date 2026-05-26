@@ -28,7 +28,7 @@ Use AgentRouter to find BTC liquidation max pain right now.
 Paste this into Claude Code chat or run it in a terminal:
 
 ```bash
-npx -y skills@latest add connectwilson/agentrouter-skill --skill AgentRouter --agent claude-code -g -y --copy
+curl -fsSL https://agentrouter.network/install.sh | bash
 ```
 
 After installation, ask your agent:
@@ -44,6 +44,12 @@ AGENT_ROUTER_URL=https://agentrouter.network AGENT_ROUTER_MAX_PRICE=0.05 npx -y 
 ```
 
 This works for shell-capable agents such as Claude Code, Codex, OpenClaw, Hermes, Cursor, and Windsurf.
+
+If your agent environment supports the `skills` CLI and GitHub cloning, this also works:
+
+```bash
+npx -y skills@latest add connectwilson/agentrouter-skill --skill AgentRouter -g -y --copy
+```
 
 ## Remote MCP Connector
 
