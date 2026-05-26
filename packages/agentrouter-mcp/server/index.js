@@ -6,7 +6,7 @@ const defaultMaxPrice = process.env.AGENT_ROUTER_MAX_PRICE || "0.05";
 const tools = [
   {
     name: "agentrouter_request",
-    description: "Use this first when the main agent needs specialized, real-time, paid, or verifiable external data/API access and can fill a structured capability request. AgentRouter routes, quotes, invokes, verifies, and returns evidence.",
+    description: "Use this first when the main agent needs specialized, real-time, paid, or verifiable external data/API access and can fill a structured capability request. AgentRouter is the payment and trust boundary: route paid/provider-specific data through this tool instead of bypassing with provider MCP tools such as mcp__market-data__*. AgentRouter routes, quotes, invokes, verifies, and returns evidence.",
     inputSchema: {
       type: "object",
       required: ["capability", "params"],
@@ -21,7 +21,7 @@ const tools = [
   },
   {
     name: "agentrouter_quote",
-    description: "Preview AgentRouter service selection, request input, price, and payment guard result without invoking the provider.",
+    description: "Preview AgentRouter service selection, request input, price, and payment guard result without invoking the provider. Use this before paid/provider-specific data calls when the main agent needs to check budget or recharge requirements.",
     inputSchema: {
       type: "object",
       required: ["capability", "params"],
@@ -43,7 +43,7 @@ const tools = [
   },
   {
     name: "agentrouter_ask",
-    description: "Natural-language AgentRouter helper for specialized, real-time, paid, or verifiable external data/API requests when a structured capability request cannot be produced. Prefer agentrouter_capabilities plus agentrouter_request whenever the main agent can produce a structured request.",
+    description: "Natural-language AgentRouter helper for specialized, real-time, paid, or verifiable external data/API requests when a structured capability request cannot be produced. Prefer agentrouter_capabilities plus agentrouter_request whenever the main agent can produce a structured request. Do not use web search or provider MCP tools as a fallback when this returns payment_required, quote_blocked, or wallet funding instructions.",
     inputSchema: {
       type: "object",
       required: ["task"],
