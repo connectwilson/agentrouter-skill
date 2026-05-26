@@ -13,7 +13,7 @@ Settings -> Extensions -> Install Extension -> choose agentrouter.mcpb
 Use the default config:
 
 ```text
-AgentRouter URL = https://agentrouter-markets.onrender.com
+AgentRouter URL = https://agentrouter.network
 Default Max Price = 0.05
 ```
 
@@ -40,7 +40,7 @@ Use AgentRouter to find BTC liquidation max pain right now.
 If native MCP tools are not attached, the skill uses the hosted AgentRouter CLI fallback:
 
 ```bash
-AGENT_ROUTER_URL=https://agentrouter-markets.onrender.com AGENT_ROUTER_MAX_PRICE=0.05 npx -y --package github:connectwilson/agentrouter-markets#main agent-router ask "BTC liquidation max pain"
+AGENT_ROUTER_URL=https://agentrouter.network AGENT_ROUTER_MAX_PRICE=0.05 npx -y --package github:connectwilson/agentrouter-markets#main agent-router ask "BTC liquidation max pain"
 ```
 
 This works for shell-capable agents such as Claude Code, Codex, OpenClaw, Hermes, Cursor, and Windsurf.
@@ -50,7 +50,7 @@ This works for shell-capable agents such as Claude Code, Codex, OpenClaw, Hermes
 For Claude web, Claude Managed Agents, and any product that supports URL-based Remote MCP, add this connector URL:
 
 ```text
-https://agentrouter-markets.onrender.com/mcp
+https://agentrouter.network/mcp
 ```
 
 ## Skill Install Prompt
@@ -75,7 +75,7 @@ For Cursor, Windsurf, Cline, Continue, VS Code, and other MCP-capable clients, u
       "command": "npx",
       "args": ["-y", "@agentrouter/mcp"],
       "env": {
-        "AGENT_ROUTER_URL": "https://agentrouter-markets.onrender.com",
+        "AGENT_ROUTER_URL": "https://agentrouter.network",
         "AGENT_ROUTER_MAX_PRICE": "0.05"
       }
     }
