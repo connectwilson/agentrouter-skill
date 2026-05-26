@@ -63,6 +63,8 @@ For local terminals where you are comfortable auditing and running the installer
 curl -fsSL https://agentrouter.network/install.sh | bash
 ```
 
+The installer is the paid-call path: it installs the skill, configures supported local MCP clients such as Claude Desktop and Cursor when their config directories are present, enables `circle_arc` settlement, creates a local encrypted AgentRouter session wallet under `~/.agentrouter/adn`, and prints the Arc Testnet USDC funding address. The Skills CLI alone only installs the agent instructions; it cannot safely edit MCP config or create a local payment wallet inside hosted agent sandboxes.
+
 This works for shell-capable agents such as Claude Code, Codex, OpenClaw, Hermes, Cursor, and Windsurf.
 
 ## Remote MCP Connector
