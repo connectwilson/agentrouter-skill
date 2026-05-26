@@ -48,10 +48,10 @@ For a local AgentRouter server:
 
 ## Tools
 
-- `agentrouter_request`: preferred structured capability request path.
+- `agentrouter_request`: preferred structured capability request path for specialized, real-time, paid, or verifiable external data/API needs.
 - `agentrouter_quote`: route and quote without invoking a provider.
-- `agentrouter_capabilities`: list capability schemas.
-- `agentrouter_ask`: natural-language fallback for demos.
+- `agentrouter_capabilities`: list capability schemas when the main agent has a data/API need and needs to discover what AgentRouter can route.
+- `agentrouter_ask`: natural-language routing helper when a structured capability request cannot be produced.
 
 ## Protocol Boundary
 

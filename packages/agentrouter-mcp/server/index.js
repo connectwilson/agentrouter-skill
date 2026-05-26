@@ -6,7 +6,7 @@ const defaultMaxPrice = process.env.AGENT_ROUTER_MAX_PRICE || "0.05";
 const tools = [
   {
     name: "agentrouter_request",
-    description: "Preferred tool: send a structured capability request that the main agent has already parsed, then route, quote, invoke, verify, and return evidence.",
+    description: "Use this first when the main agent needs specialized, real-time, paid, or verifiable external data/API access and can fill a structured capability request. AgentRouter routes, quotes, invokes, verifies, and returns evidence.",
     inputSchema: {
       type: "object",
       required: ["capability", "params"],
@@ -35,7 +35,7 @@ const tools = [
   },
   {
     name: "agentrouter_capabilities",
-    description: "List the AgentRouter capability catalog and expected structured request schemas.",
+    description: "List AgentRouter capability schemas for external data/API routing. Call this before agentrouter_request when the main agent has a data need but is unsure which structured capability or params to use.",
     inputSchema: {
       type: "object",
       properties: {}
@@ -43,7 +43,7 @@ const tools = [
   },
   {
     name: "agentrouter_ask",
-    description: "Fallback/demo tool: route a natural-language data/API request to the best registered AgentRouter service, invoke it if allowed by budget, and return the verified result.",
+    description: "Natural-language AgentRouter helper for specialized, real-time, paid, or verifiable external data/API requests when a structured capability request cannot be produced. Prefer agentrouter_capabilities plus agentrouter_request whenever the main agent can produce a structured request.",
     inputSchema: {
       type: "object",
       required: ["task"],

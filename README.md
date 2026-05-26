@@ -17,10 +17,10 @@ AgentRouter URL = https://agentrouter.network
 Default Max Price = 0.05
 ```
 
-Then ask Claude:
+Then ask a normal data question:
 
 ```text
-Use AgentRouter to find BTC liquidation max pain right now.
+Find BTC liquidation max pain right now.
 ```
 
 ## One-Line Skill Install
@@ -31,13 +31,13 @@ Paste this into Claude Code chat or run it in a terminal:
 curl -fsSL https://agentrouter.network/install.sh | bash
 ```
 
-After installation, ask your agent:
+After installation, ask your agent a normal data/API question:
 
 ```text
-Use AgentRouter to find BTC liquidation max pain right now.
+Find BTC liquidation max pain right now.
 ```
 
-If native MCP tools are not attached, the skill uses the hosted AgentRouter CLI fallback:
+If native MCP tools are not attached, the skill uses the hosted AgentRouter HTTP or CLI path:
 
 ```bash
 AGENT_ROUTER_URL=https://agentrouter.network AGENT_ROUTER_MAX_PRICE=0.05 npx -y --package github:connectwilson/agentrouter-markets#main agent-router ask "BTC liquidation max pain"
