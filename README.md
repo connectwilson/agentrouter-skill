@@ -3,7 +3,7 @@
 Install AgentRouter once for supported AI agents:
 
 ```bash
-npx skills add connectwilson/agentrouter-skill --skill AgentRouter
+npx agentrouter
 ```
 
 The Skill uses AgentRouter's hosted HTTP runtime immediately. Remote MCP is an optional enhancement, not an installation requirement.

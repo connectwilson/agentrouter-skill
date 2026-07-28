@@ -38,7 +38,7 @@ For normal questions, prefer one `agentrouter_fetch` call. Use `agentrouter_capa
 The persistent installation command is:
 
 ```bash
-npx skills add connectwilson/agentrouter-skill --skill AgentRouter
+npx agentrouter
 ```
 
 The user may run it directly or give it to a shell-capable AI agent. Asking the agent to run it is explicit authorization to install only this Skill for the current user and detected AI client. It does not authorize MCP config edits, credentials, wallets, or unrelated changes.
