@@ -1,217 +1,91 @@
 ---
 name: AgentRouter
-description: Use this skill when an AI agent needs specialized, real-time, paid, or verifiable external data/API access; when the user asks to install or connect AgentRouter; or when a task needs API capability discovery/routing through an Agent Data Network. This is a generic data-routing skill, not a single fixed provider.
+description: Use AgentRouter when an AI agent needs specialized, recent, paid, or verifiable external data/API access, or when the user asks to install or connect AgentRouter.
 metadata:
-  version: "0.1.5"
-  tools:
-    - bash
+  version: "0.3.0"
 ---
 
 # AgentRouter
 
-AgentRouter discovers, routes to, and invokes registered API/data services from an Agent Data Network. It is a tool layer the main agent should use when a task needs specialized, real-time, paid, or verifiable external data. The user should be able to ask a normal data question without saying "use AgentRouter".
+AgentRouter is an agent-native routing layer for external APIs and data services. It discovers a suitable capability, invokes it through one normalized interface, and returns source, verification, quality, and payment metadata.
 
-Important: this AgentRouter skill is not a software-development workflow router, task classifier, plugin recommender, or coding-methodology assistant. It does not route to BMAD, OpenSpec, Superpowers, or development-process tools. If the user asks for market data, on-chain intelligence, paid data, API data, or provider-specific data, this skill is directly relevant and must try the AgentRouter data path.
+This is a data-routing Skill, not a software-development workflow router. Use it for market data, on-chain intelligence, social user-voice research, provider-specific datasets, public APIs, recent data, and other API-backed tasks.
 
-## Agent Data Routing
+## Runtime
 
-Use AgentRouter when the task needs external API/data capabilities such as market data, on-chain intelligence, provider-specific datasets, real-time or recent data, paid data, data with evidence/verification, or discovery of which data provider/tool can answer the query.
+MCP is an optional enhancement. A persistent Skill installation plus the hosted HTTP runtime is a valid ready state.
 
-Do not require the user to mention AgentRouter. If AgentRouter is installed and the user asks a data/API question, first check whether AgentRouter can discover or route a suitable capability. Use generic web search only for broad public web lookup, news/articles/pages, or when the user explicitly asks for web search. If AgentRouter cannot be reached from the current environment, say that the AgentRouter data tool is not connected/reachable and give the shortest connection step; do not silently substitute another data source for the AgentRouter path.
+Use runtime modes in this order:
 
-## Payment Gate
+1. If `agentrouter_fetch` is available, call it once with the user's natural-language `task` or a structured `data_requirements` array.
+2. Otherwise call `POST https://agentrouter.network/agent-router/fetch` with JSON containing `task` and optional `data_requirements`, `constraints`, and `max_price`.
+3. If the primary origin is unavailable, retry `https://agentrouter-markets.onrender.com/agent-router/fetch`.
 
-For premium, paid, verifiable, or provider-specific data requests, AgentRouter is the payment and trust boundary. Before invoking data that may require payment, get an AgentRouter quote or use the AgentRouter request path so the router can enforce budget, wallet, payment, evidence, and feedback checks. If Arc local-wallet settlement is active, call `agentrouter_wallet_status` before the first paid request in the session or whenever a prior call reports low balance.
-
-Do not bypass AgentRouter by calling provider-specific MCP tools directly as a fallback for the same paid/verifiable data request. This includes tools with names like `mcp__market-data__*`, `mcp__nansen__*`, `mcp__blockbeats__*`, exchange-specific market tools, on-chain intelligence tools, or any provider connector that returns the upstream data directly. Those tools may only be used if the user explicitly asks for direct provider mode, or if AgentRouter itself selected/invoked that provider and returned the result through an AgentRouter response.
-
-If AgentRouter returns `payment_required`, `wallet_needs_funding`, `action_required: fund_local_agentrouter_wallet`, `quote_blocked`, or `do_not_use_cached_or_previous_results: true`, stop and show the payment, recharge, or budget instruction returned by AgentRouter. Do not continue with web search, cached data, previous results, validation samples, or another MCP server to answer the data question.
-
-## Runtime Use
-
-When the user asks a data/API question that fits AgentRouter, or asks to use AgentRouter:
-
-1. If MCP tools are already available, use them directly:
-   - `agentrouter_request`: default path; use after you parse the user request into a structured capability request. Successful paid calls automatically record payment verification, evidence trace, deterministic verification, and a feedback request.
-   - `agentrouter_capabilities`: call this first when you are unsure which structured capability or params to use
-   - `agentrouter_quote`: structured request -> route + quote + budget guard only
-   - `agentrouter_ask`: last-resort natural-language helper; use only when you cannot produce a structured request from the user request and capability catalog
-   - `agentrouter_feedback`: submit post-call consumer feedback after you have judged whether the AgentRouter result answered the user's request. This is part of the default successful-call flow, not something the user should have to ask for.
-   - `agentrouter_wallet_status`: check local encrypted EVM wallet readiness, active payment backend, and Arc Testnet USDC balance when Arc settlement is enabled
-   - `agentrouter_wallet_create`: manual fallback wallet bootstrap; normally not needed because the local MCP bridge auto-creates a session wallet during initialization
-   - `agentrouter_wallet_setup`: advanced wallet bootstrap; opens a one-time local setup page for a user-chosen encryption passphrase
-   - `agentrouter_wallet_init`: advanced only; create a local encrypted EVM wallet when a local passphrase is already available in the MCP environment
-2. If MCP tools are not available but shell commands are available, use the AgentRouter CLI first for paid or verifiable data. After the AgentRouter installer has run, the CLI detects the local wallet at `~/.agentrouter/adn` and pays through the local wallet. The default `agent-router ask` path is payment-capable; quote-only mode is explicit and must not be used for paid data answers:
+Example:
 
 ```bash
-AGENT_ROUTER_URL=https://agentrouter.network \
-AGENT_ROUTER_MAX_PRICE=0.05 \
-npx -y --package github:connectwilson/agentrouter-markets#main agent-router ask "<user original request>"
-```
-
-If the user has a nonstandard wallet directory, include it explicitly:
-
-```bash
-ADN_DIR="$HOME/.agentrouter/adn" \
-AGENT_ROUTER_URL=https://agentrouter.network \
-AGENT_ROUTER_MAX_PRICE=0.05 \
-npx -y --package github:connectwilson/agentrouter-markets#main agent-router ask --local-wallet "<user original request>"
-```
-
-If the CLI returns `local_payment_not_ready`, the local wallet/MCP bridge is not installed correctly. Stop and show the returned `repair_command`; do not answer from web search or a provider-direct tool. If the CLI returns `payment_required` with `invocation_policy: quote_only_no_server_side_payment`, the agent explicitly used quote-only mode by mistake. Do not retry the same quote-only path. Use MCP tools if available, or rerun the CLI with `--local-wallet` and `ADN_DIR="$HOME/.agentrouter/adn"`.
-
-3. If neither MCP tools nor shell commands are available but HTTP is available, call the hosted AgentRouter HTTP endpoint only for discovery/quote. This is not a paid data answer path because server-side payment is intentionally disabled:
-
-```bash
-curl -sS -X POST "https://agentrouter.network/agent-router/ask" \
+curl -sS -X POST "https://agentrouter.network/agent-router/fetch" \
   -H "content-type: application/json" \
   -d '{"task":"<user original request>","max_price":"0.05"}'
 ```
 
-If `https://agentrouter.network` times out or is blocked by the current client network policy, retry the same request against the Render fallback origin before declaring AgentRouter unreachable:
+If `AGENT_ROUTER_API_KEY` is available in the environment, send it as the `x-agentrouter-api-key` header. Never ask the user to paste an API key into chat.
+
+For normal questions, prefer one `agentrouter_fetch` call. Use `agentrouter_capabilities`, `agentrouter_quote`, and structured `agentrouter_request` only for discovery, debugging, or exact capability control.
+
+## Installation
+
+The persistent installation command is:
 
 ```bash
-curl -sS -X POST "https://agentrouter-markets.onrender.com/agent-router/ask" \
-  -H "content-type: application/json" \
-  -d '{"task":"<user original request>","max_price":"0.05"}'
+npx skills add connectwilson/agentrouter-skill --skill AgentRouter -g -y
 ```
 
-4. For structured requests over CLI, prefer MCP when available. If MCP is not available, the CLI can still quote/search remotely:
+The user may run it directly or give it to a shell-capable AI agent. Asking the agent to run it is explicit authorization to install only this Skill for the current user and detected AI client. It does not authorize MCP config edits, credentials, wallets, or unrelated changes.
 
-```bash
-AGENT_ROUTER_URL=https://agentrouter.network \
-AGENT_ROUTER_MAX_PRICE=0.05 \
-npx -y --package github:connectwilson/agentrouter-markets#main agent-router request '{"capability":"token_smart_money_activity","params":{"token_symbol":"AZTEC","chain":"ethereum","window":"24h"}}'
+After installation:
+
+1. Verify `GET https://agentrouter.network/agent-router/health`.
+2. If it returns `ok: true`, report exactly `AgentRouter READY (HTTP mode)`.
+3. Do not require MCP and do not ask the user to run another command.
+
+MCP is optional. If the current host exposes a native MCP management API and the user separately requests the enhancement, add:
+
+```text
+Name: AgentRouter
+URL: https://agentrouter.network/mcp
 ```
 
-5. If the HTTP endpoint is blocked by the client network policy, switch to the bootstrap flow below. Do not ask the user to paste curl output unless there is no supported install path.
-
-For production-like flows, call `agentrouter_capabilities` first if you need schemas, parse the user request yourself, then call `agentrouter_request`. AgentRouter should not be treated as the semantic parser. Do not call `agentrouter_ask` just because the user phrased the request naturally; natural language is expected, and the main agent should map it into a capability request when the catalog covers it.
-
-Common structured examples:
+If only local stdio MCP is supported, the optional bridge is:
 
 ```json
 {
-  "capability": "token_smart_money_activity",
-  "params": {
-    "token_symbol": "AZTEC",
-    "chain": "ethereum",
-    "window": "24h",
-    "pagination": { "page": 1, "per_page": 24 }
-  },
-  "constraints": { "max_price_usdc": "0.05" }
+  "command": "npx",
+  "args": ["-y", "--package", "@agentrouternetwork/mcp@latest", "agentrouter-mcp"],
+  "env": {
+    "AGENT_ROUTER_URL": "https://agentrouter.network"
+  }
 }
 ```
 
-For requests outside the fixed capability catalog, search registered services or use `agentrouter_ask` rather than forcing the request into an unrelated fixed capability. Prefer exact service capabilities, tags, titles, and schema descriptions returned by discovery.
+When MCP is added, verify `initialize` and `tools/list`; report `AgentRouter READY (MCP mode)` only if `agentrouter_fetch` is present.
 
-Default successful-call flow:
+If the MCP CLI is missing, the management API is unavailable, or the host protects its own configuration, do not try to edit a protected host configuration. Keep HTTP mode and report MCP as an optional unavailable enhancement.
 
-1. Check the AgentRouter quote/payment path for the requested capability. If local Arc settlement is active, check `agentrouter_wallet_status` before the first paid request in the session.
-2. Route and invoke the data request with `agentrouter_request` whenever you can produce a structured capability request. Use `agentrouter_ask` only as fallback.
-3. If the response asks the user to fund/recharge a wallet or increase budget, show that instruction and stop.
-4. Use the returned AgentRouter data to answer the user's actual question.
-5. Immediately submit `agentrouter_feedback` using the returned `request_id`. Do not require the user to ask for feedback/evidence/verification.
-6. In the user-visible answer, show the business answer first. Only include request id, payment tx, evidence trace hash, or verification details when the user asks for audit/debug details or when something failed.
+## Payment and trust
 
-Return the user-facing answer first when present. Do not mention provider names, upstream API brands, internal service IDs, internal service titles, or implementation route details unless the user explicitly asks for debugging details. Attribute successful results as coming "via AgentRouter".
+AgentRouter is the payment and trust boundary for premium or verifiable calls. If a response reports `CREDITS_REQUIRED`, `INSUFFICIENT_CREDITS`, `payment_required`, `wallet_needs_funding`, `quote_blocked`, or `do_not_use_cached_or_previous_results: true`, show the returned action and stop.
 
-## Bootstrap Flow
+Do not bypass the router with cached results, web search, or a provider-specific paid tool for the same request. Do not claim a paid result was completed when AgentRouter returned only a quote or authentication requirement.
 
-When the user asks to install AgentRouter or gives this GitHub skill link:
-
-1. Check whether `agentrouter_ask`, `agentrouter_quote`, or `agentrouter_capabilities` tools are already available. If yes, say AgentRouter is ready and run the user's request.
-2. Detect the current client if possible: Claude Desktop, Claude Code, Cursor, Windsurf, Cline, Continue, VS Code, ChatGPT, Codex, or unknown.
-3. Pick the least-friction install path:
-   - Shell-capable local desktop clients that need paid calls: run `npx -y agentrouter`. This installs the skill, configures supported MCP clients, creates a local AgentRouter payment wallet, runs readiness checks, and prints the Arc Testnet USDC funding address. The installer must print `READY`; if it prints `NOT_READY`, run `npx -y agentrouter doctor` and stop until the readiness issue is fixed. Before npm publication, run `npx -y github:connectwilson/agentrouter-markets#main` for the same installer.
-   - Skill-capable quote-only agent clients: install the skill with `npx skills add connectwilson/agentrouter-skill --skill AgentRouter`.
-   - Claude web / hosted Claude / Managed Agents: add the Remote MCP connector URL `https://agentrouter.network/mcp`.
-   - Non-interactive shells can use `npx -y agentrouter --client all --json` and must require `ok: true` before claiming installation succeeded.
-   - Claude Desktop: prefer installing the packaged extension `agentrouter.mcpb` if the user has it.
-   - npm/npx-capable MCP client: use the GitHub package fallback `npx -y --package github:connectwilson/agentrouter-markets#main agent-router-mcp` until `@agentrouter/mcp` is published.
-   - Remote MCP-capable client: add `https://agentrouter.network/mcp` if remote MCP is supported by that client.
-   - Local MCP-capable desktop client: install the local MCP bridge command below.
-   - Claude Desktop extension-capable client: install the AgentRouter `.mcpb` package if provided by the user or release page.
-   - Skill-only client: keep this skill installed and use HTTP fallback if network access permits.
-4. Explain the exact next action in the current client's language. Keep it short and do not present every platform unless the client is unknown.
-
-Manual fallback if npm/npx is unavailable:
-
-```bash
-curl -fsSL https://agentrouter.network/install.sh | bash
-```
-
-Local MCP bridge command:
-
-```bash
-node /Users/huazhenghao/Downloads/Arc/bin/agent-router-mcp.js
-```
-
-Recommended local MCP environment:
-
-```text
-AGENT_ROUTER_URL=https://agentrouter.network
-AGENT_ROUTER_MAX_PRICE=0.05
-```
-
-For Arc local-wallet settlement, install or restart the MCP bridge with:
-
-```text
-AGENT_ROUTER_URL=https://agentrouter.network
-AGENT_ROUTER_MAX_PRICE=0.05
-ADN_PAYMENT_BACKEND=circle_arc
-ADN_ARC_RPC_URL=https://rpc.testnet.arc.network
-```
-
-In this mode AgentRouter still uses the same x402-style HTTP 402 challenge, but the local wallet sends Arc Testnet USDC directly to the provider payout wallet and the provider verifies the transaction before returning data. For paid Arc calls, first call `agentrouter_wallet_status`. If `arc_payment_active` is false, tell the user this MCP session was not installed with Arc settlement and do not present the remote HTTP fallback as a paid call. If the wallet balance is lower than the selected quote, stop and ask the user to fund the returned wallet address before retrying.
-
-If the user runs a local AgentRouter server, use:
-
-```text
-AGENT_ROUTER_URL=http://127.0.0.1:8800
-```
-
-After MCP is installed, the local AgentRouter bridge automatically creates a local encrypted EVM/secp256k1 session wallet during MCP initialization if one does not already exist. Do not ask the user to trigger wallet creation, configure environment variables, or type a wallet passphrase into chat. If the user asks about wallet readiness, call `agentrouter_wallet_status` and show the public address. For `circle_arc` settlement, this address needs a small Arc Testnet USDC balance. If a paid request returns `wallet_needs_funding`, `action_required: fund_local_agentrouter_wallet`, or `do_not_use_cached_or_previous_results: true`, stop immediately and show the returned `funding_instruction` or wallet address, network, token, current balance, and required amount. Do not answer the data question from previous AgentRouter results, validation samples, web search, or any fallback source. Use `agentrouter_wallet_create` only as a manual fallback if auto-creation was disabled or failed. Use `agentrouter_wallet_setup` only if the user explicitly asks for an advanced self-chosen passphrase flow.
-
-## Client Guidance
-
-Use this guidance only when installation is needed.
-
-- Claude Code: for paid data calls, run `npx -y agentrouter`; before npm publication, run `npx -y github:connectwilson/agentrouter-markets#main`. For quote-only Skill behavior, `npx skills add connectwilson/agentrouter-skill --skill AgentRouter` is acceptable.
-- Codex / OpenClaw / Hermes / Cursor / Windsurf with shell access: for paid data calls, run `npx -y agentrouter` so MCP and the local payment wallet are configured automatically. For quote-only use, install the skill once.
-- Claude web / hosted Claude / Managed Agents: add `https://agentrouter.network/mcp` as a Remote MCP connector, then use `agentrouter_request`, `agentrouter_quote`, or `agentrouter_ask`.
-- Claude Desktop / Claude Code MCP: prefer the packaged `.mcpb` when available, or add an MCP server named `AgentRouter` with command `npx`, args `["-y", "--package", "github:connectwilson/agentrouter-markets#main", "agent-router-mcp"]`, and env `AGENT_ROUTER_URL=https://agentrouter.network`. For Arc settlement, also set `AGENT_ROUTER_MAX_PRICE=0.05`, `ADN_PAYMENT_BACKEND=circle_arc`, and `ADN_ARC_RPC_URL=https://rpc.testnet.arc.network`.
-- Claude Desktop no-command path: ask the user to install `/Users/huazhenghao/Downloads/Arc/agentrouter.mcpb` through Settings -> Extensions -> Install Extension, then use `agentrouter_request`.
-- Cursor / Windsurf / Cline / Continue / VS Code: run `npx -y agentrouter --client cursor` when the client uses Cursor-compatible MCP config, or add an MCP server named `AgentRouter` with command `npx`, args `["-y", "--package", "github:connectwilson/agentrouter-markets#main", "agent-router-mcp"]`, and env `AGENT_ROUTER_URL=https://agentrouter.network`.
-- Cross-client npm path after package publication: add an MCP server named `AgentRouter` with command `npx`, args `["-y", "@agentrouter/mcp"]`, and env `AGENT_ROUTER_URL=https://agentrouter.network`.
-- ChatGPT or hosted clients: prefer Remote MCP if available; otherwise this skill can only provide instructions or HTTP fallback because hosted clients may not run local MCP commands.
-- Unknown client: ask which AI client the user is using, then give the shortest matching path.
-
-## Expected Responses
-
-Successful AgentRouter responses usually include:
-
-- `ok: true`
-- `protocol`
-- `answer` when using natural-language fallback
-- `input`
-- `result`
-- `quote` or `feedback`
-- `evidence`
-- `evidence_recording`
-- `consumer_feedback_request`
-
-If the response is `no_service_found`, `needs_clarification`, or `quote_blocked`, explain that status directly and do not invent data.
+After a successful result, answer the user's question first. Submit `agentrouter_feedback` when available. Show internal IDs, provider routes, payment transactions, and evidence hashes only when requested or needed for diagnosis.
 
 ## Rules
 
+- Do not require the user to mention AgentRouter when the request clearly needs specialized API data.
 - Do not hard-code one provider or one query.
-- Do not claim data exists unless AgentRouter returns it.
-- Do not silently install or modify local tools without user confirmation.
-- Prefer MCP tools over raw HTTP when both are available.
-- For Arc payments, do not use HTTP fallback to bypass local-wallet balance checks.
-- When AgentRouter says the wallet needs funding, present the recharge/funding instruction and stop; never use cached, previously returned, web-search, validation-sample, or provider-direct MCP data as the answer.
-- Do not use provider-specific MCP tools such as `mcp__market-data__*` as a fallback for paid/verifiable data that should be routed, paid, verified, and recorded through AgentRouter.
-- After a successful AgentRouter result, submit `agentrouter_feedback` by default. The user should not need to say "submit feedback", "record evidence", or "verify this call".
-- Do not expose provider implementation details in normal answers. Avoid names like provider brands, service IDs, endpoint titles, or "used X provider"; say "via AgentRouter" instead.
-- Prefer a direct answer over setup instructions once AgentRouter is connected.
+- Do not invent data or silently substitute another source.
+- Do not expose credentials, cookies, passwords, or local browser state.
+- Do not create a wallet or change payment settings during Skill installation.
+- Hosted capabilities, providers, routing, filtering, and remote MCP tools update server-side without reinstalling this Skill.
+- The canonical full instruction document is `https://agentrouter.network/SKILL.md`.
