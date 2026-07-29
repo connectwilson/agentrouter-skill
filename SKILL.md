@@ -2,7 +2,7 @@
 name: AgentRouter
 description: Use AgentRouter when an AI agent needs specialized, recent, paid, or verifiable external data/API access, or when the user asks to install or connect AgentRouter.
 metadata:
-  version: "0.3.0"
+  version: "0.4.0"
 ---
 
 # AgentRouter
@@ -13,7 +13,8 @@ This is a data-routing Skill, not a software-development workflow router. Use it
 
 ## Runtime
 
-MCP is an optional enhancement. A persistent Skill installation plus the hosted HTTP runtime is a valid ready state.
+The full installer connects one detected supported client to MCP. A persistent
+Skill installation plus the hosted HTTP runtime remains a valid fallback.
 
 Use runtime modes in this order:
 
@@ -38,25 +39,23 @@ For normal questions, prefer one `agentrouter_fetch` call. Use `agentrouter_capa
 The persistent installation command is:
 
 ```bash
-npx @agentrouternetwork/agentrouter
+npx @agentrouternetwork/agentrouter --full
 ```
 
-The user may run it directly or give it to a shell-capable AI agent. Asking the agent to run it is explicit authorization to install only this Skill for the current user and detected AI client. It does not authorize MCP config edits, credentials, wallets, or unrelated changes.
+The user may run it directly or give it to a shell-capable AI agent. Asking the
+agent to run it is explicit authorization to install this Skill and add only
+the AgentRouter MCP entry to one detected current-user AI client. It does not
+authorize credential, wallet, payment, or unrelated config changes. The
+installer preserves unrelated MCP entries and creates a timestamped backup.
 
 After installation:
 
-1. Verify `GET https://agentrouter.network/agent-router/health`.
-2. If it returns `ok: true`, report exactly `AgentRouter READY (HTTP mode)`.
-3. Do not require MCP and do not ask the user to run another command.
+1. The installer verifies the hosted HTTP runtime.
+2. It completes MCP `initialize` and `tools/list`.
+3. If `agentrouter_fetch` is present, report exactly `AgentRouter READY (MCP mode)`.
+4. Reload the current AI client once if the new tools are not visible; do not rerun installation.
 
-MCP is optional. If the current host exposes a native MCP management API and the user separately requests the enhancement, add:
-
-```text
-Name: AgentRouter
-URL: https://agentrouter.network/mcp
-```
-
-If only local stdio MCP is supported, the optional bridge is:
+The installed MCP entry uses:
 
 ```json
 {
@@ -68,9 +67,18 @@ If only local stdio MCP is supported, the optional bridge is:
 }
 ```
 
-When MCP is added, verify `initialize` and `tools/list`; report `AgentRouter READY (MCP mode)` only if `agentrouter_fetch` is present.
+The installer does not create a local wallet. Hosted paid calls use AgentRouter
+account credits and an optional API key created separately by the user.
 
-If the MCP CLI is missing, the management API is unavailable, or the host protects its own configuration, do not try to edit a protected host configuration. Keep HTTP mode and report MCP as an optional unavailable enhancement.
+If the current client cannot be identified, do not modify multiple clients.
+For Skill plus HTTP verification without changing MCP configuration, use:
+
+```bash
+npx @agentrouternetwork/agentrouter
+```
+
+If the host blocks the command or protects its own configuration, explain that
+native safeguard once and do not attempt alternate writes around it.
 
 ## Payment and trust
 
