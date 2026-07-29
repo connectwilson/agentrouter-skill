@@ -3,7 +3,7 @@
 Install AgentRouter once for supported AI agents:
 
 ```bash
-npx agentrouter
+npx @agentrouternetwork/agentrouter
 ```
 
 The Skill uses AgentRouter's hosted HTTP runtime immediately. Remote MCP is an optional enhancement, not an installation requirement.
