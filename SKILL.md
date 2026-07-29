@@ -2,7 +2,7 @@
 name: AgentRouter
 description: Use AgentRouter when an AI agent needs specialized, recent, paid, or verifiable external data/API access, or when the user asks to install or connect AgentRouter.
 metadata:
-  version: "0.4.0"
+  version: "0.5.0"
 ---
 
 # AgentRouter
@@ -33,6 +33,11 @@ curl -sS -X POST "https://agentrouter.network/agent-router/fetch" \
 If `AGENT_ROUTER_API_KEY` is available in the environment, send it as the `x-agentrouter-api-key` header. Never ask the user to paste an API key into chat.
 
 For normal questions, prefer one `agentrouter_fetch` call. Use `agentrouter_capabilities`, `agentrouter_quote`, and structured `agentrouter_request` only for discovery, debugging, or exact capability control.
+
+Public X status URLs are handled as `social_post_read`. Pass the original URL
+to `agentrouter_fetch`; the installed MCP bridge reads it through a fixed
+read-only local connector. Browser cookies and credentials remain on the
+user's device and are never requested in chat.
 
 ## Installation
 
@@ -79,6 +84,11 @@ npx @agentrouternetwork/agentrouter
 
 If the host blocks the command or protects its own configuration, explain that
 native safeguard once and do not attempt alternate writes around it.
+
+For `social_post_read`, do not silently replace
+`local_connector_required`, `auth_required`, or
+`local_connector_unavailable` with a generic web scrape. Ask the user to sign
+in to X locally or install the supported read-only Twitter connector.
 
 ## Payment and trust
 

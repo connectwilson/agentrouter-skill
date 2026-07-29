@@ -19,6 +19,9 @@ What are real users complaining about Kimi K3 across social platforms?
 
 AgentRouter's hosted capabilities, providers, routing logic, filtering, and MCP tools update server-side. Users do not reinstall the Skill for normal feature releases.
 
+Public X status URLs route through the installed MCP bridge's fixed read-only
+local connector. Browser credentials and cookies remain on the user's device.
+
 Skill plus HTTP-only fallback:
 
 ```bash
