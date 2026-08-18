@@ -1,35 +1,27 @@
-# AgentRouter Skill
+# AgentRouter Skill — moved
 
-Install AgentRouter once for supported AI agents:
+This repository is no longer maintained. Its contents have moved to:
 
-```bash
-npx @agentrouternetwork/agentrouter --full
-```
+**https://github.com/connectwilson/agentrouter**
 
-The command installs the Skill, adds one AgentRouter MCP entry to one detected
-supported AI client, and verifies that `agentrouter_fetch` is available. It
-preserves unrelated MCP entries, creates a timestamped config backup, and does
-not create a local wallet.
+The MCP bridge published here stopped at `0.1.0`. Anything installed from this
+repository is several releases behind and points at a host that no longer serves.
 
-After installation, ask a normal data question, for example:
-
-```text
-What are real users complaining about Kimi K3 across social platforms?
-```
-
-AgentRouter's hosted capabilities, providers, routing logic, filtering, and MCP tools update server-side. Users do not reinstall the Skill for normal feature releases.
-
-Public X status URLs route through the installed MCP bridge's fixed read-only
-local connector. Browser credentials and cookies remain on the user's device.
-
-Skill plus HTTP-only fallback:
+## Install
 
 ```bash
 npx @agentrouternetwork/agentrouter
 ```
 
-Canonical live instructions:
+That detects your AI clients, registers the MCP bridge with each, and installs
+the AgentRouter Skill. See the new repository for manual configuration, the
+protocol contract, and architecture notes.
 
-```text
-https://agentrouter.network/SKILL.md
-```
+## Packages
+
+| Package | Registry |
+|---|---|
+| `@agentrouternetwork/mcp` | https://www.npmjs.com/package/@agentrouternetwork/mcp |
+| `@agentrouternetwork/agentrouter` | https://www.npmjs.com/package/@agentrouternetwork/agentrouter |
+
+Homepage: https://agentrouter.network
